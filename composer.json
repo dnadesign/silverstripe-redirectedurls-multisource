@@ -1,0 +1,58 @@
+{
+    "name": "dnadesign/silverstripe-redirectedurls-multisource",
+    "description": "Adds multi-source URL support to silverstripe/redirectedurls",
+    "license": "BSD-3-Clause",
+    "type": "silverstripe-vendormodule",
+    "keywords": [
+        "silverstripe",
+        "redirect",
+        "redirectedurls",
+        "multisource"
+    ],
+    "require": {
+        "php": "^8.3",
+        "silverstripe/cms": "^6",
+        "silverstripe/redirectedurls": "^4"
+    },
+    "require-dev": {
+        "cambis/silverstan": "^2.2",
+        "cambis/silverstripe-rector": "^2.1",
+        "phpstan/extension-installer": "^1.4",
+        "phpunit/phpunit": "^11",
+        "rector/rector": "^2.4",
+        "silverstripe/recipe-testing": "^4"
+    },
+    "autoload": {
+        "psr-4": {
+            "DNADesign\\RedirectedURLsMultiSource\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DNADesign\\RedirectedURLsMultiSource\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=1G"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "phpstan/extension-installer": true,
+            "silverstripe/recipe-plugin": true,
+            "silverstripe/vendor-plugin": true
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        },
+        "project-files-installed": [
+            "behat.yml",
+            "phpunit.xml.dist"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
