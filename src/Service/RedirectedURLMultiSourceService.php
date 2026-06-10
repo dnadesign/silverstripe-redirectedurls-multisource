@@ -34,7 +34,7 @@ class RedirectedURLMultiSourceService extends RedirectedURLService
                 parse_str($potential->FromQuerystring, $reqVars);
 
                 foreach ($reqVars as $key => $value) {
-                    if (!$value) {
+                    if ($value === '' || $value === null) {
                         continue;
                     }
 
