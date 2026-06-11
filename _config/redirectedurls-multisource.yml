@@ -1,0 +1,16 @@
+---
+Name: redirectedurls-multisource
+After:
+  - '#redirectedurls'
+---
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\RedirectedURLs\Service\RedirectedURLService:
+    class: DNADesign\RedirectedURLsMultiSource\Service\RedirectedURLMultiSourceService
+
+SilverStripe\RedirectedURLs\Model\RedirectedURL:
+  extensions:
+    - DNADesign\RedirectedURLsMultiSource\Extension\RedirectedURLMultiSourceExtension
+
+SilverStripe\Dev\CsvBulkLoader:
+  extensions:
+    - DNADesign\RedirectedURLsMultiSource\Extension\CsvBulkLoaderRedirectAliasExtension
