@@ -127,6 +127,10 @@ class RedirectedURLMultiSourceService extends RedirectedURLService
      */
     private function pushIfUnique(ArrayList $potentials, RedirectedURL $candidate, array &$seen): void
     {
+        if (!self::isAllowedMatch($candidate)) {
+            return;
+        }
+
         $key = sprintf(
             '%d|%s|%s',
             (int) $candidate->ID,
@@ -140,6 +144,16 @@ class RedirectedURLMultiSourceService extends RedirectedURLService
 
         $potentials->push($candidate);
         $seen[$key] = true;
+    }
+
+    /**
+     * Runs the core module's filterBestRedirectedURLMatch hook, so extensions such as its subsite one can rule a redirect out
+     */
+    public static function isAllowedMatch(RedirectedURL $candidate): bool
+    {
+        $results = $candidate->invokeWithExtensions('filterBestRedirectedURLMatch');
+
+        return $results === [] || min($results) !== false;
     }
 
     private function applyWildcardToIfNeeded(RedirectedURL $candidate, string $base, string $baseStr): void

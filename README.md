@@ -42,6 +42,52 @@ Example:
 /legacy/article?id=22
 ```
 
+## Ruling out matches
+
+The service replaces the core `RedirectedURLService`, and like the core one it runs the
+`filterBestRedirectedURLMatch` hook on every candidate. A redirect is skipped when any extension
+returns `false`. This covers primary sources, additional sources and wildcards.
+
+An additional source is checked as its redirect, so it follows the same rules.
+
+The same hook decides whether an additional source clashes with a redirect being saved. An alias the
+hook rules out is not counted as a clash.
+
+```php
+class RedirectRegionExtension extends Extension
+{
+    public function filterBestRedirectedURLMatch(): ?bool
+    {
+        return $this->getOwner()->Region === Region::current() ? null : false;
+    }
+}
+```
+
+## Subsites
+
+`silverstripe/redirectedurls` ships `RedirectedURLSubsiteExtension`, which adds a `SubsiteID` to redirects
+and implements the hook, so redirects only match on their own subsite.
+
+The unique indexes on `RedirectedURL` and `RedirectSourceAlias` don't include the subsite, so two subsites
+can't use the same source URL. To allow that, add `SubsiteID` to both indexes in your project. The alias
+table has no `SubsiteID` of its own, so add one and copy it from the alias's redirect on write.
+
+```yaml
+SilverStripe\RedirectedURLs\Model\RedirectedURL:
+  indexes:
+    From:
+      columns:
+        - SubsiteID
+
+DNADesign\RedirectedURLsMultiSource\Model\RedirectSourceAlias:
+  has_one:
+    Subsite: SilverStripe\Subsites\Model\Subsite
+  indexes:
+    UniqueFrom:
+      columns:
+        - SubsiteID
+```
+
 ## Notes
 
 - Newline separated input is preferred to avoid ambiguity with commas in URLs.

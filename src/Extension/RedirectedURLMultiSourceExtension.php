@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DNADesign\RedirectedURLsMultiSource\Extension;
 
 use DNADesign\RedirectedURLsMultiSource\Model\RedirectSourceAlias;
+use DNADesign\RedirectedURLsMultiSource\Service\RedirectedURLMultiSourceService;
 use DNADesign\RedirectedURLsMultiSource\Support\FromURLParser;
 use SilverStripe\Core\Extension;
 use SilverStripe\Core\Validation\ValidationResult;
@@ -64,15 +65,20 @@ class RedirectedURLMultiSourceExtension extends Extension
 
         $aliasQueryFilter = $primaryQuery === '' ? ['', null] : $primaryQuery;
 
-        $existingAlias = RedirectSourceAlias::get()
+        $existingAliases = RedirectSourceAlias::get()
             ->filter([
                 'FromBase' => $primaryBase,
                 'FromQuerystring' => $aliasQueryFilter,
             ])
-            ->exclude(['RedirectedURLID' => (int) $this->owner->ID])
-            ->first();
+            ->exclude(['RedirectedURLID' => (int) $this->owner->ID]);
 
-        if (!$existingAlias || !$existingAlias->exists()) {
+        // An alias another extension rules out, such as one on another subsite, can't clash with this redirect
+        $clashes = array_filter(
+            $existingAliases->toArray(),
+            static fn (RedirectSourceAlias $alias): bool => RedirectedURLMultiSourceService::isAllowedMatch($alias->RedirectedURL()),
+        );
+
+        if ($clashes === []) {
             return;
         }
 
