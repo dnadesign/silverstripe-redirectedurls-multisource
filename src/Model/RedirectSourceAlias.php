@@ -6,7 +6,6 @@ namespace DNADesign\RedirectedURLsMultiSource\Model;
 
 use DNADesign\RedirectedURLsMultiSource\Support\FromURLParser;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\RedirectedURLs\Model\RedirectedURL;
 
@@ -48,13 +47,8 @@ class RedirectSourceAlias extends DataObject
     {
         $fields = parent::getCMSFields();
 
-        // Added from its redirect's Source aliases tab, which sets the redirect, so it's shown rather than picked
-        $label = $this->getRedirectLabel();
-        if ($label === '') {
-            $fields->removeByName('RedirectedURLID');
-        } else {
-            $fields->replaceField('RedirectedURLID', ReadonlyField::create('RedirectLabel', 'Redirect', $label));
-        }
+        // Added from its redirect's Source aliases tab, which sets the redirect itself
+        $fields->removeByName('RedirectedURLID');
 
         $queryField = $fields->dataFieldByName('FromQuerystring');
         if ($queryField !== null) {
@@ -64,32 +58,6 @@ class RedirectSourceAlias extends DataObject
         }
 
         return $fields;
-    }
-
-    /**
-     * The redirect this source belongs to, as its source URLs and where it goes, since a redirect has no title of its own
-     */
-    public function getRedirectLabel(): string
-    {
-        $redirect = $this->RedirectedURL();
-        if (!$redirect->exists()) {
-            return '';
-        }
-
-        $sources = array_filter([
-            $redirect->FromBase ? FromURLParser::formatFromURL($redirect->FromBase, $redirect->FromQuerystring ?: null) : '',
-            $redirect->getSourceAliasesSummary(),
-        ]);
-
-        $page = $redirect->LinkTo();
-        $file = $redirect->LinkToAsset();
-        $target = match ($redirect->RedirectionType) {
-            'Internal' => $page->exists() ? $page->Title : '',
-            'Asset' => $file->exists() ? $file->Name : '',
-            default => $redirect->To,
-        };
-
-        return trim(implode(', ', $sources) . ' → ' . (string) $target);
     }
 
     protected function onBeforeWrite(): void
