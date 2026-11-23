@@ -47,6 +47,9 @@ class RedirectSourceAlias extends DataObject
     {
         $fields = parent::getCMSFields();
 
+        // Added from its redirect's Source aliases tab, which sets the redirect itself
+        $fields->removeByName('RedirectedURLID');
+
         $queryField = $fields->dataFieldByName('FromQuerystring');
         if ($queryField !== null) {
             $queryField
